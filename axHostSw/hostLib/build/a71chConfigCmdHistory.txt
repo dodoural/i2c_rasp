@@ -1,0 +1,50 @@
+help
+connect
+info
+connect
+exit
+exit()
+gen_pair -x 1
+gen_pair -x 0
+info status
+gen_pair -x 0
+gen_pair -x 1
+gen_pair -x 2
+help gen_pair
+help 
+gen_pair
+gen_pair -x 1
+gen_pair -x 10
+gen_pair -x 0x0
+gen_pair -x 0
+gen_pair -x 0x0101010101010101010101010101010101010101010101010101010101010101
+apdu -cmd 0x80 0x15
+apdu -cmd 8015000020
+apdu -cmd 80150000200000
+apdu -cmd 8061000
+apdu -cmd 80610000
+apdu -cmd 806100000
+apdu -cmd 80610000000000
+apdu -cmd 80910102
+apdu -cmd 809101020
+apdu -cmd 8091010200
+help
+apdu -cmd 80910102
+apdu -cmd 0x80 0x91 0x01 0x02
+apdu -cmd 80 91 01 02
+apdu -cmd 80 91 01 02 00
+apdu -cmd 80 91 01 02 00 00
+apdu -cmd 8091010200 00
+apdu -cmd 80 91 01 02 
+help
+apdu -cmd 80 91 01 02 
+apdu -cmd 80 91 01 02 -sw 9000
+apdu -cmd 80910102 -sw 9000
+info
+info cnt
+info objects
+info pair
+info pub
+info status
+help
+

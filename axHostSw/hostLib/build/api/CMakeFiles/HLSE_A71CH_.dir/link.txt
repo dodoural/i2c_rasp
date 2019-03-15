@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC -g  -shared -Wl,-soname,libHLSE_A71CH_.so.1 -o libHLSE_A71CH_.so.1.0.0 CMakeFiles/HLSE_A71CH_.dir/src/A71HLSEWrapper.c.o -Wl,-rpath,/home/pc/Desktop/71ch/axHostSw/hostLib/build/a71ch: ../a71ch/libA71CH_.so.1.4.0 /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so -lusb-1.0 

@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC   -shared -Wl,-soname,libHLSE_A71CH_i2c.so.1 -o libHLSE_A71CH_i2c.so.1.0.0 CMakeFiles/HLSE_A71CH_i2c.dir/src/A71HLSEWrapper.c.o -Wl,-rpath,/home/dodo/Downloads/axHostSw/hostLib/build_i2c/a71ch: ../a71ch/libA71CH_i2c.so.1.4.0 /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so 

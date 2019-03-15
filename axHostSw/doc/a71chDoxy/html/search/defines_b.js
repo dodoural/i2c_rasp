@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['scp_5fdecode_5ffail',['SCP_DECODE_FAIL',['../sm__types_8h.html#a000e2549a4e997ca4ba5627f33bb6cbb',1,'sm_types.h']]],
+  ['scp_5frsp_5fmac_5ffail',['SCP_RSP_MAC_FAIL',['../sm__types_8h.html#a81cb844064537a23857b594f9a3c5211',1,'sm_types.h']]],
+  ['scp_5fundefined_5fchannel_5fid',['SCP_UNDEFINED_CHANNEL_ID',['../sm__types_8h.html#afa26509a949c208c342bf50033485acf',1,'sm_types.h']]],
+  ['smcom_5fcom_5ffailed',['SMCOM_COM_FAILED',['../sm_com_8h.html#a9114aea28b3e61aec91c9fd9333f4920',1,'smCom.h']]],
+  ['smcom_5fno_5fatr',['SMCOM_NO_ATR',['../sm_com_8h.html#a3885e52fc723c98a23af709678b749e2',1,'smCom.h']]],
+  ['smcom_5fno_5fprior_5finit',['SMCOM_NO_PRIOR_INIT',['../sm_com_8h.html#a9e0af7969b5294e54d142a0da75224da',1,'smCom.h']]],
+  ['smcom_5fok',['SMCOM_OK',['../sm_com_8h.html#a5ee2cdbe2ee93bdfd74c63304dd88c58',1,'smCom.h']]],
+  ['smcom_5fprotocol_5ffailed',['SMCOM_PROTOCOL_FAILED',['../sm_com_8h.html#a994d493235b25b9d0f72d594baa94ca5',1,'smCom.h']]],
+  ['smcom_5frcv_5ffailed',['SMCOM_RCV_FAILED',['../sm_com_8h.html#af81f9915072ba518b56d0ba399e9c374',1,'smCom.h']]],
+  ['smcom_5fsnd_5ffailed',['SMCOM_SND_FAILED',['../sm_com_8h.html#a71fbd30870e13b1f1d11fbdb4643e23f',1,'smCom.h']]],
+  ['sw_5fcla_5fnot_5fsupported',['SW_CLA_NOT_SUPPORTED',['../sm__apdu_8h.html#a022ef48ce053acf81da793f02567c4dc',1,'sm_apdu.h']]],
+  ['sw_5fcommand_5fnot_5fallowed',['SW_COMMAND_NOT_ALLOWED',['../sm__apdu_8h.html#a1edee9dbc6c0ff950aff5e978dab7471',1,'sm_apdu.h']]],
+  ['sw_5fconditions_5fnot_5fsatisfied',['SW_CONDITIONS_NOT_SATISFIED',['../sm__apdu_8h.html#a60960656eda0aef1fb23c5fd35875526',1,'sm_apdu.h']]],
+  ['sw_5fdata_5finvalid',['SW_DATA_INVALID',['../sm__apdu_8h.html#a020683082016a5aa25dd000cc96eab35',1,'sm_apdu.h']]],
+  ['sw_5ffile_5fnot_5ffound',['SW_FILE_NOT_FOUND',['../sm__apdu_8h.html#a86317ed41c7706340089a8ca7c88f6cb',1,'sm_apdu.h']]],
+  ['sw_5fincorrect_5fp1p2',['SW_INCORRECT_P1P2',['../sm__apdu_8h.html#a19f5cf6f8fb733fcf8b5e2d44dadc896',1,'sm_apdu.h']]],
+  ['sw_5fins_5fnot_5fsupported',['SW_INS_NOT_SUPPORTED',['../sm__apdu_8h.html#a23df6c986d59c5a04e95f44c33609f41',1,'sm_apdu.h']]],
+  ['sw_5fno_5ferror',['SW_NO_ERROR',['../sm__apdu_8h.html#aac0a0718dee96973869a1a9e8b8a1fb8',1,'sm_apdu.h']]],
+  ['sw_5fok',['SW_OK',['../sm__types_8h.html#a8c7b7be5dd3dcbaa85f9d9536fc93f55',1,'sm_types.h']]],
+  ['sw_5fsecure_5fmessaging_5fnot_5fsupported',['SW_SECURE_MESSAGING_NOT_SUPPORTED',['../sm__apdu_8h.html#a2d8d8a3b160d81ee3f7884658ac55d3d',1,'sm_apdu.h']]],
+  ['sw_5fsecurity_5fstatus_5fnot_5fsatisfied',['SW_SECURITY_STATUS_NOT_SATISFIED',['../sm__apdu_8h.html#a410f0bf7a6575580111fed5e0ae46aae',1,'sm_apdu.h']]],
+  ['sw_5fwrong_5fdata',['SW_WRONG_DATA',['../sm__apdu_8h.html#a9dcc70b9ce867b8aa786bfeb913ee167',1,'sm_apdu.h']]],
+  ['sw_5fwrong_5flength',['SW_WRONG_LENGTH',['../sm__apdu_8h.html#ad11e2364f21d9dc4a81c6bc4b5e89784',1,'sm_apdu.h']]]
+];

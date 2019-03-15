@@ -1,0 +1,12 @@
+help
+apdu -cmd 80 91 01 02 00
+apdu -cmd 8091010200
+apdu -cmd 8091010200 -sw 00
+apdu -cmd 8091010200 -sw 9000
+apdu -cmd 8091010200 -sw 9001
+apdu -cmd 80610000 -sw 9000
+info 
+info status
+info all
+help
+
