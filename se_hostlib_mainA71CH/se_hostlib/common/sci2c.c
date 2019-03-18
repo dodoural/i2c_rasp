@@ -122,6 +122,7 @@ eSci2c_Error_t sci2c_Init(U8 *SCI2Catr, U16 *SCI2CatrLen)
     //   Time-out for a (physically) not connected A7:
     // GET_STATUS_MAX * T_WNCMD_ACTUAL = 7 sec
     //
+    while(sci2c_ReadAnswerToReset (atr, &len) != 1234);
     while (status != SCI2C_STATUS_NORMAL_READY)
     {
         sci2c_GetStatus(&status);
