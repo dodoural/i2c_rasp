@@ -220,7 +220,7 @@ i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char 
     messages[1].flags = I2C_M_RD | I2C_M_RECV_LEN | I2C_M_IGNORE_NAK;
     messages[1].len   = 256;
     messages[1].buf   = pRx;
-    messages[1].buf[0] = 1;
+    messages[1].buf[0] = 2;
 
     // NOTE:
     // By passing the two message structures via the packets structure as
