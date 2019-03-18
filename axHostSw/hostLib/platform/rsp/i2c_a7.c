@@ -217,7 +217,7 @@ i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char 
     // By setting the 'I2C_M_RECV_LEN' bit in 'messages[1].flags' one ensures
     // the I2C Block Read feature is used.
     messages[1].addr  = axSmDevice_addr;
-    messages[1].flags = I2C_M_RD | I2C_M_RECV_LEN | I2C_M_IGNORE_NAK;
+    messages[1].flags = I2C_M_RD | I2C_M_RECV_LEN;
     messages[1].len   = 256;
     messages[1].buf   = pRx;
     messages[1].buf[0] = 2;
