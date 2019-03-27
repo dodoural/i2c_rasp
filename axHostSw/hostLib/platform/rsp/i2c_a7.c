@@ -57,7 +57,6 @@ i2c_error_t axI2CInit()
     }
     return I2C_OK;
 }
-
 /**
 * Closes the communication channel to I2C device (not implemented)
 */
@@ -80,7 +79,6 @@ i2c_error_t axI2CWriteByte(unsigned char bus, unsigned char addr, unsigned char 
     i2c_error_t rv;
     extern unsigned int bytesLen;
     bytesLen = 1;
-    printf("Wrıte Byte = %c\n\r",*pTx);
     if (bus != I2C_BUS_0)
     {
         printf("axI2CWriteByte on wrong bus %x (addr %x)\n", bus, addr);
@@ -116,7 +114,6 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
 #ifdef LOG_I2C
     int i = 0;
 #endif
-    printf("Wrıte pTx[0] = %c & write len = %d\n\r",*pTx,txLen);
     if (bus != I2C_BUS_0)
     {
         printf("axI2CWrite on wrong bus %x (addr %x)\n", bus, addr);
@@ -139,6 +136,7 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
     CmdBuf[3]=0x07;
     CmdBuf[5+txLen]=0x00;
     CmdBuf[4+txLen]=0x03;
+
     nrWritten = bbI2CZip(I2C_SDA,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
    if (nrWritten < 0)
    {
@@ -167,7 +165,6 @@ i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char 
     char ReadBuf[256];
     extern unsigned int bytesLen;
     bytesLen = txLen ;
-    printf("Wrıte Read pTx[0] = %c & write len = %d\n\r",*pTx,txLen);
 
     if (bus != I2C_BUS_0) // change if bus 0 is not the correct bus
     {
