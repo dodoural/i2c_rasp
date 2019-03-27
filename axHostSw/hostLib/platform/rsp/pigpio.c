@@ -1379,7 +1379,7 @@ static uint32_t old_spi_cntl0;
 static uint32_t old_spi_cntl1;
 
 static uint32_t bscFR;
-
+unsigned int  bytesLen;
 /* const --------------------------------------------------------- */
 
 static const uint8_t clkDef[PI_MAX_GPIO + 1] =
@@ -10521,6 +10521,11 @@ int bbI2CZip(
                      for (i=0; i<(bytes-1); i++)
                      {
                         outBuf[outPos++] = I2CGetByte(w, 0);
+
+                        if(i == 0)
+                        {
+                           bytes = outBuf[0]+1;
+                        }
                      }
                      outBuf[outPos++] = I2CGetByte(w, 1);
                   }
@@ -10533,7 +10538,7 @@ int bbI2CZip(
 
          case PI_I2C_WRITE:
 
-            bytes = myI2CGetPar(inBuf, &inPos, inLen, &esc);
+            bytes = bytesLen;
 
             if (bytes >= 0) ack = I2CPutByte(w, addr<<1);
 

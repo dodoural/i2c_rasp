@@ -22,6 +22,25 @@
 #include <stdio.h>
 #include <assert.h>
 #include <time.h>
+#include "smComSCI2C.h"
+#include <string.h>
+
+#include <stdint.h>
+
+#include <stdio.h>
+
+#include <assert.h>
+
+#include <a71ch_const.h>
+
+#include "ax_api.h"
+
+#include "ax_util.h"
+
+#include "sm_apdu.h"
+
+#include "sm_errors.h"
+
 
 #include "tst_sm_time.h"
 
@@ -102,8 +121,16 @@ int mainA71CHLight(const char * connectHandle)
     sm_printf(DBGOUT, "**********************************************\r\n");
     sm_initSleep();
     sm_printf(DBGOUT, "Connect to A71CH-SM. Chunksize at link layer = %d.\r\n", MAX_CHUNK_LENGTH_LINK);
-
-    connectStatus = app_boot_Connect(&commState, connectHandle);
+U8 atr[64];
+U16 atrLen = 64;
+int sw = smComSCI2C_Open(ESTABLISH_SCI2C, 0x00, atr,&atrLen);
+if (sw == SW_OK)
+	printf("A71CH Init Successful\n\r");
+else{ 
+	printf("A71CH Init Failed\n\r");
+	return -1;
+}
+   /* connectStatus = app_boot_Connect(&commState, connectHandle);
 
     if (connectStatus != 0) {
         sm_printf(CONSOLE, "Connection failed. SW = %d\r\n", connectStatus);
@@ -113,7 +140,7 @@ int mainA71CHLight(const char * connectHandle)
             return connectStatus;
         #endif
     }
-
+*/
     initMeasurement(&execTime);
 
     result &= exLight();

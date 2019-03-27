@@ -70,16 +70,17 @@ void smComSCI2C_Init(U8 mode, U8 seqCnt, U8 *SCI2Catr, U16 *SCI2CatrLen)
 U16 smComSCI2C_Open(U8 mode, U8 seqCnt, U8 *SCI2Catr, U16 *SCI2CatrLen)
 {
     eSci2c_Error_t st = eSci2c_Error;
-    i2c_error_t i2c_status;
-
+    i2c_error_t i2c_status;  
     i2c_status = axI2CInit();
     if (i2c_status != I2C_OK)
     {
         return SMCOM_COM_FAILED;
     }
 
+    printf("\r\n-----------smComSCI2C OPEN ------------------\r\n");
     if (mode == ESTABLISH_SCI2C)
     {
+	printf("INSIDE smComSCI2C_Open\n\r");
         st = sci2c_Init(SCI2Catr, SCI2CatrLen);
         if (st != eSci2c_No_Error)
         {

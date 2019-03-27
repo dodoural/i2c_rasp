@@ -108,7 +108,7 @@ eSci2c_Error_t sci2c_Init(U8 *SCI2Catr, U16 *SCI2CatrLen)
     uint16_t nrRead = 0;
     sci2c_maxDataBytesM2S_t maxCommandLength;
     int nGetStatus = 0;
-
+	printf("INSIDEsci2c_Init\n\r");
 #define GET_STATUS_MAX 70
 
     gSeqCtr = 0; /* (re)set sequence counter */
@@ -161,7 +161,7 @@ eSci2c_Error_t sci2c_Init(U8 *SCI2Catr, U16 *SCI2CatrLen)
     if ((rv != eSci2c_No_Error) || (len == 0))
     {
         *SCI2CatrLen = 0;
-        sm_printf(DBGOUT, "Error reading ATR\r\n");
+        printf("Error reading ATR\r\n");
         return eSci2c_Error;
     }
     else
@@ -170,11 +170,7 @@ eSci2c_Error_t sci2c_Init(U8 *SCI2Catr, U16 *SCI2CatrLen)
         *SCI2CatrLen = (len < (*SCI2CatrLen)) ? len : (*SCI2CatrLen);
         memcpy(SCI2Catr, atr, *SCI2CatrLen);
     }
-
     /* --- param exchange --- */
-#ifdef LOG_SCI2C_PARAMETER_EXCHANGE
-    printf("\r\n-----------sci2c_ParameterExchange ------------------\r\n");
-#endif
     rv = sci2c_ParameterExchange(SMCOM_MAX_BYTES, &maxCommandLength);
     /* next types are casted to U32 for comparison; if types do not match, this comparison needs to be changed */
     if ((rv != eSci2c_No_Error) || ((U32) maxCommandLength != (U32) SMCOM_MAX_BYTES))
@@ -347,7 +343,6 @@ static eSci2c_Error_t sci2c_ParameterExchange(sci2c_maxDataBytesS2M_t maxData, s
    U8 i = 0;
    U16 nrRead = 0;
    i2c_status_t i2cErr;
-
    pSci2cData->pcb = (U8) (PCB_PARAM_EXCH | (maxData << 6));
    pSci2cData->dataLen = 0;
 

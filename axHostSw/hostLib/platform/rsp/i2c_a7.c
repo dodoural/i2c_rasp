@@ -29,8 +29,12 @@
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 #include <time.h>
+#include "pigpio.h"
 
 // #define LOG_I2C 1
+#define I2C_SDA 17
+#define I2C_SCL 27
+#define I2C_SPEED 200000
 
 static int axSmDevice;
 static int axSmDevice_addr = 0x48;      // 7-bit address
@@ -41,64 +45,17 @@ static char devName[] = "/dev/i2c-1";   // Change this when connecting to anothe
 */
 i2c_error_t axI2CInit()
 {
-    unsigned long funcs;
-
-    /*
-     * Open the file in /dev/i2c-1
-     */
-    printf("I2CInit: opening %s\n", devName);
-
-    if ((axSmDevice = open(devName, O_RDWR)) < 0)
+    if(gpioInitialise() == PI_INIT_FAILED )
     {
-        printf("opening failed...\n");
-        perror("Failed to open the i2c bus");
-        return I2C_FAILED;
+        printf("PIGPIO INIT FAILED /n/r");
+        return -1;
     }
-
-    if (ioctl(axSmDevice, I2C_SLAVE, axSmDevice_addr) < 0)
+    if(bbI2COpen(I2C_SDA,I2C_SCL,I2C_SPEED) < 0)
     {
-        printf("I2C driver failed setting address\n");
+        printf("PIGPIO BITBANG INIT FAILED");
+        return -1;
     }
-
-    // clear PEC flag
-    if (ioctl(axSmDevice, I2C_PEC, 0) < 0)
-    {
-        printf("I2C driver: PEC flag clear failed\n");
-    }
-    else
-    {
-        printf("I2C driver: PEC flag cleared\n");
-    }
-
-    // Query functional capacity of I2C driver
-    if (ioctl(axSmDevice, I2C_FUNCS, &funcs) < 0)
-    {
-        printf("Fatal: Cannot get i2c adapter functionality\n");
-        return I2C_FAILED;
-    }
-    else
-    {
-        if (funcs & I2C_FUNC_I2C)
-        {
-            printf("I2C driver supports plain i2c-level commands.\n");
-            if ( (funcs & I2C_FUNC_SMBUS_READ_BLOCK_DATA) == I2C_FUNC_SMBUS_READ_BLOCK_DATA )
-            {
-                printf("I2C driver supports Read Block.\n");
-            }
-//            else
-  //          {
-    //            printf("Fatal: I2C driver does not support Read Block!\n");
-      //          return I2C_FAILED;
-        //    }
-        }
-        else
-        {
-            printf("Fatal: I2C driver CANNOT support plain i2c-level commands!\n");
-            return I2C_FAILED;
-        }
-    }
-
-   return I2C_OK;
+    return I2C_OK;
 }
 
 /**
@@ -106,9 +63,8 @@ i2c_error_t axI2CInit()
 */
 void axI2CTerm(int mode)
 {
-    AX_UNUSED_ARG(mode);
-    printf("axI2CTerm: not implemented.\n");
-    return;
+    bbI2CClose(I2C_SDA);
+    gpioTerminate();
 }
 
 /**
@@ -122,13 +78,22 @@ i2c_error_t axI2CWriteByte(unsigned char bus, unsigned char addr, unsigned char 
 {
     int nrWritten = -1;
     i2c_error_t rv;
-
+    extern unsigned int bytesLen;
+    bytesLen = 1;
+    printf("Wrıte Byte = %c\n\r",*pTx);
     if (bus != I2C_BUS_0)
     {
         printf("axI2CWriteByte on wrong bus %x (addr %x)\n", bus, addr);
     }
+    char ReadBuf[256];
+    char CmdBuf[] = {4, 0x48, // Chip address
+    0x02,0x07,*pTx, // set the register address as 0x01 to read the register
+    0x03, // Read 7 register.
+    0 // EOL
+    };
 
-    nrWritten = write(axSmDevice, pTx, 1);
+    nrWritten = bbI2CZip(I2C_SDA,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
+
     if (nrWritten < 0)
     {
         // printf("Failed writing data (nrWritten=%d).\n", nrWritten);
@@ -136,14 +101,7 @@ i2c_error_t axI2CWriteByte(unsigned char bus, unsigned char addr, unsigned char 
     }
     else
     {
-        if (nrWritten == 1)
-        {
-            rv = I2C_OK;
-        }
-        else
-        {
-            rv = I2C_FAILED;
-        }
+         rv = I2C_OK;
     }
 
     return rv;
@@ -153,10 +111,12 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
 {
     int nrWritten = -1;
     i2c_error_t rv;
+    extern unsigned int bytesLen;
+    bytesLen = txLen ;
 #ifdef LOG_I2C
     int i = 0;
 #endif
-
+    printf("Wrıte pTx[0] = %c & write len = %d\n\r",*pTx,txLen);
     if (bus != I2C_BUS_0)
     {
         printf("axI2CWrite on wrong bus %x (addr %x)\n", bus, addr);
@@ -169,8 +129,17 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
     }
     printf("\n");
 #endif
-
-   nrWritten = write(axSmDevice, pTx, txLen);
+    bytesLen = txLen;
+    char ReadBuf[256];
+    char CmdBuf[6+txLen];
+    memcpy(CmdBuf+4,pTx,txLen);
+    CmdBuf[0]=4;
+    CmdBuf[1]=0x48;
+    CmdBuf[2]=0x02;
+    CmdBuf[3]=0x07;
+    CmdBuf[5+txLen]=0x00;
+    CmdBuf[4+txLen]=0x03;
+    nrWritten = bbI2CZip(I2C_SDA,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
    if (nrWritten < 0)
    {
       printf("Failed writing data (nrWritten=%d).\n", nrWritten);
@@ -178,14 +147,7 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
    }
    else
    {
-        if (nrWritten == txLen) // okay
-        {
             rv = I2C_OK;
-        }
-        else
-        {
-            rv = I2C_FAILED;
-        }
    }
 #ifdef LOG_I2C
     printf("    Done with rv = %02x ", rv);
@@ -202,46 +164,22 @@ i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char 
     struct i2c_msg messages[2];
     int r = 0;
     int i = 0;
+    char ReadBuf[256];
+    extern unsigned int bytesLen;
+    bytesLen = txLen ;
+    printf("Wrıte Read pTx[0] = %c & write len = %d\n\r",*pTx,txLen);
 
     if (bus != I2C_BUS_0) // change if bus 0 is not the correct bus
     {
         printf("axI2CWriteRead on wrong bus %x (addr %x)\n", bus, addr);
     }
 
-    messages[0].addr  = axSmDevice_addr;
-    messages[0].flags = 0;
-    messages[0].len   = txLen;
-    messages[0].buf   = pTx;
-
-    // NOTE:
-    // By setting the 'I2C_M_RECV_LEN' bit in 'messages[1].flags' one ensures
-    // the I2C Block Read feature is used.
-    messages[1].addr  = axSmDevice_addr;
-    messages[1].flags = I2C_M_RD | I2C_M_RECV_LEN;
-    messages[1].len   = 256;
-    messages[1].buf   = pRx;
-    messages[1].buf[0] = 2;
-
-    // NOTE:
-    // By passing the two message structures via the packets structure as
-    // a parameter to the ioctl call one ensures a Repeated Start is triggered.
-    packets.msgs      = messages;
-    packets.nmsgs     = 2;
-#ifdef LOG_I2C
-    printf("TX (%d byte): ", txLen);
-    for (i = 0; i < txLen; i++)
-    {
-        printf("%02X ", packets.msgs[0].buf[i]);
-    }
-    printf("\n");
-#endif
-
-    // Send the request to the kernel and get the result back
-    r = ioctl(axSmDevice, I2C_RDWR, &packets);
-
-    // NOTE:
-    // The ioctl return value in case of a NACK on the write address is '-1'
-    // This impacts the error handling routine of the caller.
+    char CmdBuf[] = {4, 0x48, // Chip address
+        0x02,0x07,*pTx, // set the register address as 0x01 to read the register
+        0x02,0x06,0xff,0x03, // Read 7 register.
+        0 // EOL
+        };
+    bbI2CZip(17,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
     if (r < 0)
     {
 #ifdef LOG_I2C
@@ -253,9 +191,8 @@ i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char 
     }
     else
     {
-        int rlen = packets.msgs[1].buf[0]+1;
+        int rlen = ReadBuf[0]+1;
 
-        //printf("packets.msgs[1].len is %d \n", packets.msgs[1].len);
 #ifdef LOG_I2C
         printf("RX  (%d): ", rlen);
         for (i = 0; i < rlen; i++)
@@ -266,7 +203,7 @@ i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char 
 #endif
         for (i = 0; i < rlen; i++)
         {
-            pRx[i] = packets.msgs[1].buf[i];
+            pRx[i] = ReadBuf[i];
         }
         *pRxLen = rlen;
     }
