@@ -141,6 +141,17 @@ else{
         #endif
     }
 */
+    sw =  -1;
+    U8 uid[18]= {0};
+    U16 size = 18;
+    sw = A71_GetUniqueID(uid,&size);
+    if(sw == SW_OK)
+    printf("\n\rUNIQUE ID = %s\n\r",uid);
+    U8 rnd[64];
+    sw = A71_GetRandom(rnd,64);
+    if(sw == SW_OK)
+    printf("\n\rRANDOM NUMBER =%s\n\r",rnd);
+
     initMeasurement(&execTime);
 
     result &= exLight();
