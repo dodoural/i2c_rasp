@@ -152,6 +152,18 @@ else{
     if(sw == SW_OK)
     printf("\n\rRANDOM NUMBER =%s\n\r",rnd);
 
+ uint16_t value = 65;
+ uint8_t pubkey[88] = {0};
+        if ( A71_GetPublicKeyEccKeyPair(0, pubkey, &value) == SMCOM_OK)
+            printf("Good.");
+        if (A71_GenerateEccKeyPair(0) == SMCOM_OK)
+            printf("Good.");
+int i = 0;
+for(i = 0; i < 65 ; i++)
+{
+printf(" %d",pubkey[i]);
+}
+printf("\n\r");
     initMeasurement(&execTime);
 
     result &= exLight();
