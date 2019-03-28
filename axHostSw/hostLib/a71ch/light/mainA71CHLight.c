@@ -106,7 +106,7 @@ int mainA71CHLight(const char * connectHandle)
 #endif
 {
     U8 result = 1;
-    int connectStatus = 0;
+   // int connectStatus = 0;
     SmCommState_t commState;
     time_t now;
     axTimeMeasurement_t execTime;

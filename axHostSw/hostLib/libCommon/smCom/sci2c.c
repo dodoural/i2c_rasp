@@ -108,7 +108,6 @@ eSci2c_Error_t sci2c_Init(U8 *SCI2Catr, U16 *SCI2CatrLen)
     uint16_t nrRead = 0;
     sci2c_maxDataBytesM2S_t maxCommandLength;
     int nGetStatus = 0;
-	printf("INSIDEsci2c_Init\n\r");
 #define GET_STATUS_MAX 70
 
     gSeqCtr = 0; /* (re)set sequence counter */
@@ -929,7 +928,7 @@ static i2c_status_t sci2c_ReadBlock(sci2c_Data_t * pSci2cData, U8 * pRead, U16 *
    else if (readlen < 2)
    {
       // should not happen
-      sm_printf(DBGOUT,"Error: %d bytes read\r\n", readlen);
+     // sm_printf(DBGOUT,"Error: %d bytes read\r\n", readlen);
       return i2c_Failed;
    }
    else if ((pRead[0] + 1) != readlen) /* the LEN byte does not match the number of read bytes */

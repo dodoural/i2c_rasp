@@ -34,11 +34,8 @@
 // #define LOG_I2C 1
 #define I2C_SDA 17
 #define I2C_SCL 27
-#define I2C_SPEED 200000
-
-static int axSmDevice;
-static int axSmDevice_addr = 0x48;      // 7-bit address
-static char devName[] = "/dev/i2c-1";   // Change this when connecting to another host i2c master port
+#define I2C_SPEED 400000
+#define A71CH_ADDRESS 0x48
 
 /**
 * Opens the communication channel to I2C device
@@ -84,10 +81,10 @@ i2c_error_t axI2CWriteByte(unsigned char bus, unsigned char addr, unsigned char 
         printf("axI2CWriteByte on wrong bus %x (addr %x)\n", bus, addr);
     }
     char ReadBuf[256];
-    char CmdBuf[] = {4, 0x48, // Chip address
-    0x02,0x07,*pTx, // set the register address as 0x01 to read the register
-    0x03, // Read 7 register.
-    0 // EOL
+    char CmdBuf[] = {PI_I2C_ADDR, A71CH_ADDRESS, // Chip address
+    PI_I2C_START,PI_I2C_WRITE,*pTx, // set the register address as 0x01 to read the register
+    PI_I2C_STOP, // Read 7 register.
+    PI_I2C_END // EOL
     };
 
     nrWritten = bbI2CZip(I2C_SDA,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
@@ -130,12 +127,12 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
     char ReadBuf[256];
     char CmdBuf[6+txLen];
     memcpy(CmdBuf+4,pTx,txLen);
-    CmdBuf[0]=4;
-    CmdBuf[1]=0x48;
-    CmdBuf[2]=0x02;
-    CmdBuf[3]=0x07;
-    CmdBuf[5+txLen]=0x00;
-    CmdBuf[4+txLen]=0x03;
+    CmdBuf[0]=PI_I2C_ADDR;
+    CmdBuf[1]=A71CH_ADDRESS;
+    CmdBuf[2]=PI_I2C_START;
+    CmdBuf[3]=PI_I2C_WRITE;
+    CmdBuf[5+txLen]=PI_I2C_END;
+    CmdBuf[4+txLen]=PI_I2C_STOP;
 
     nrWritten = bbI2CZip(I2C_SDA,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
    if (nrWritten < 0)
@@ -145,7 +142,7 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
    }
    else
    {
-            rv = I2C_OK;
+      rv = I2C_OK;
    }
 #ifdef LOG_I2C
     printf("    Done with rv = %02x ", rv);
@@ -158,8 +155,6 @@ i2c_error_t axI2CWrite(unsigned char bus, unsigned char addr, unsigned char * pT
 i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char * pTx,
       unsigned short txLen, unsigned char * pRx, unsigned short * pRxLen)
 {
-    struct i2c_rdwr_ioctl_data packets;
-    struct i2c_msg messages[2];
     int r = 0;
     int i = 0;
     char ReadBuf[256];
@@ -171,12 +166,12 @@ i2c_error_t axI2CWriteRead(unsigned char bus, unsigned char addr, unsigned char 
         printf("axI2CWriteRead on wrong bus %x (addr %x)\n", bus, addr);
     }
 
-    char CmdBuf[] = {4, 0x48, // Chip address
-        0x02,0x07,*pTx, // set the register address as 0x01 to read the register
-        0x02,0x06,0xff,0x03, // Read 7 register.
-        0 // EOL
+    char CmdBuf[] = {PI_I2C_ADDR, A71CH_ADDRESS, // Chip address
+        PI_I2C_START,PI_I2C_WRITE,*pTx, // set the register address as 0x01 to read the register
+        PI_I2C_COMBINED_ON,PI_I2C_READ,0xff,PI_I2C_STOP, // Read 7 register.
+        PI_I2C_END // EOL
         };
-    bbI2CZip(17,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
+    bbI2CZip(I2C_SDA,CmdBuf,sizeof(CmdBuf),ReadBuf,256);
     if (r < 0)
     {
 #ifdef LOG_I2C

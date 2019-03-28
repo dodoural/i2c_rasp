@@ -77,10 +77,8 @@ U16 smComSCI2C_Open(U8 mode, U8 seqCnt, U8 *SCI2Catr, U16 *SCI2CatrLen)
         return SMCOM_COM_FAILED;
     }
 
-    printf("\r\n-----------smComSCI2C OPEN ------------------\r\n");
     if (mode == ESTABLISH_SCI2C)
     {
-	printf("INSIDE smComSCI2C_Open\n\r");
         st = sci2c_Init(SCI2Catr, SCI2CatrLen);
         if (st != eSci2c_No_Error)
         {
