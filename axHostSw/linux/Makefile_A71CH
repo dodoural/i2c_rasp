@@ -23,7 +23,11 @@
 ifeq ($(platf),imx)
 else
 	CROSS_COMPILE =
-	CC      = gcc
+	ifndef  ccpath
+		CC = gcc
+	else
+		CC = ${ccpath}
+	endif
 endif
 SHELL   = /bin/sh
 
