@@ -55,12 +55,7 @@
 #include "app_boot.h"
 #include "global_platf.h"
 #include "sm_printf.h"
-
-#if defined(USE_RTOS) && USE_RTOS == 1
-#include "FreeRTOS.h"
-#include "task.h"
-#define mainA71CHLight_task_PRIORITY (configMAX_PRIORITIES - 4)
-#endif
+#include "tstHostCrypto.h"
 
 U8 exLight(void);
 
@@ -126,7 +121,7 @@ U16 atrLen = 64;
 int sw = smComSCI2C_Open(ESTABLISH_SCI2C, 0x00, atr,&atrLen);
 if (sw == SW_OK)
 	printf("A71CH Init Successful\n\r");
-else{ 
+else{
 	printf("A71CH Init Failed\n\r");
 	return -1;
 }
@@ -141,45 +136,91 @@ else{
         #endif
     }
 */
-    sw =  -1;
-    U8 uid[18]= {0};
-    U16 size = 18;
+eccKeyComponents_t dodo;
+dodo.pubLen = sizeof(dodo.pub);
+sw =  -1;
+int i = 0;
+U8 uid[36]= {0};
+U16 size = 36;
+  if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
+    {        printf("Get Good 0.\n\r");
+            for(i = 0; i < 65 ; i++)
+            {
+                printf(" %d",dodo.pub[i]);
+            }
+            printf("\n\r");
+
+    }
+    if (A71_GenerateEccKeyPair(0) == SW_OK)
+    {
+        if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
+        {
+
+            printf("Get Good 1.\n\r");
+            for(i = 0; i < 65 ; i++)
+            {
+                printf(" %d",dodo.pub[i]);
+            }
+            printf("\n\r");
+            if(A71_SetEccPublicKey(0,dodo.pub, dodo.pubLen) == SW_OK)
+                printf("Key saved at index %d\n\r",0);
+        }
+    }
     sw = A71_GetUniqueID(uid,&size);
+
     if(sw == SW_OK)
-    printf("\n\rUNIQUE ID = %s\n\r",uid);
+    printf("UNIQUE ID = ");
+    for(i = 0; i < 18 ; i++)
+    {
+        printf(" %d",uid[i]);
+    }
+    printf("\n\r");
     U8 rnd[64];
     sw = A71_GetRandom(rnd,64);
     if(sw == SW_OK)
-    printf("\n\rRANDOM NUMBER =%s\n\r",rnd);
+    printf("RANDOM NUMBER = ");
+    for(i = 0; i < 65 ; i++)
+    {
+        printf(" %d",rnd[i]);
+    }
+    printf("\n\r");
 
- uint16_t value = 65;
- uint8_t pubkey[88] = {0};
-	 if (A71_GenerateEccKeyPair(0) == SMCOM_OK)
-            printf("Good.");
-        if ( A71_GetPublicKeyEccKeyPair(0, pubkey, &value) == SMCOM_OK)
-            printf("Good.");
-int i = 0;
+  if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
+    {
+            printf("Get Good 2\n\r");
+            for(i = 0; i < 65 ; i++)
+            {
+                printf(" %d",dodo.pub[i]);
+            }
+            printf("\n\r");
+
+    }
+    if (A71_GenerateEccKeyPair(0) == SW_OK)
+            printf("Generate Good.\n\r");
+    if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
+            printf("Get Good 4\n\r");
+    if(A71_SetEccPublicKey(0,dodo.pub, dodo.pubLen) == SW_OK)
+            printf("Key saved at index %d\n\r",0);
 for(i = 0; i < 65 ; i++)
 {
-printf(" %d",pubkey[i]);
+printf(" %d",dodo.pub[i]);
 }
 printf("\n\r");
-    initMeasurement(&execTime);
+U8 str[] = {"HELLO WORLD !"};
+U8 sha[32] = {0};
+U16 shaLen =32;
+U8 sign[256] = {0};
+U16 signLen = 256;
+if (A71_GetSha256(str,sizeof(str),sha,&shaLen)== SW_OK)
+{
 
-    result &= exLight();
+    if(A71_EccSign(0,sha,32,sign,&signLen) == SW_OK)
+    {
+        puts("Sign Succesfull");
+        U8 res = 0;
+        if(A71_EccVerify(0,sha,shaLen,sign,signLen,&res)==SW_OK)
+        printf("RESULT OF VERIFY IS %d\n\r",res);
+    }
+}
 
-    concludeMeasurement(&execTime);
-    app_test_status(result);
-    now = time(NULL);
-    sm_printf(CONSOLE, "\r\n-----------\r\nLight Example Set A71CH finished (Rev %s) on 0x%04X, overall result = %s\r\n%sExec time: %ld ms\r\n------------\r\n",
-            EX_APP_VERSION,
-            commState.appletVersion,
-            ((result == 1) ? "OK" : "FAILED"),
-            ctime(&now),
-            getMeasurement(&execTime));
-    #if defined(USE_RTOS) && USE_RTOS == 1
-        vTaskSuspend(NULL);
-    #else
-        return 0;
-    #endif
 }
