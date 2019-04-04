@@ -43,7 +43,7 @@
 #include "tstHostCrypto.h"
 
 U8 exLight(void);
-
+void ASNtoRawSignature(const U8 *sign, U8 *rawSign);
 // ---------------------------------------------------------------------
 //           Please do not change the following defines
 // ---------------------------------------------------------------------
@@ -102,17 +102,7 @@ else{
 	printf("A71CH Init Failed\n\r");
 	return -1;
 }
-   /* connectStatus = app_boot_Connect(&commState, connectHandle);
 
-    if (connectStatus != 0) {
-        sm_printf(CONSOLE, "Connection failed. SW = %d\r\n", connectStatus);
-        #if defined(USE_RTOS) && USE_RTOS == 1
-            assert(0);
-        #else
-            return connectStatus;
-        #endif
-    }
-*/
 eccKeyComponents_t dodo[5];
 dodo[0].pubLen = sizeof(dodo->pub);
 dodo[0].curve = ECCCurve_NIST_P256;
@@ -181,17 +171,18 @@ U16 size = 36;
     // printf("\n\r");
 
 
-//U8 str[] = {"HELLO WORLD !"};
-U8 str[2] = {1,2};
+U8 str[] = {"HELLO WORLD !"};
 U8 sha[32] = {0};
 U16 shaLen =32;
 U8 sign1[256] = {0};
 U16 signLen1 = 256;
 U8 sign2[256] = {0};
 U16 signLen2 = 256;
+U8 rawSign[64] = {0};
+
 if (A71_GetSha256(str,sizeof(str),sha,&shaLen)== SW_OK)
 {
-    printf("HASH IS : ");
+        printf("HASH IS : ");
         for(i=0;i<shaLen;i++)
         {
             printf("%02x ",sha[i]);
@@ -206,33 +197,14 @@ if (A71_GetSha256(str,sizeof(str),sha,&shaLen)== SW_OK)
             printf("%02x ",sign1[i]);
         }
         puts("");
-        i = 0;
-        U8 bufSign[64];
-        U8 signSize = 0;
-        U8 j = 0;
-        while(sign1[i++] != 0x02);
-        signSize = sign1[i] + i;
-        if(sign1[++i] == 0x00)
-                i++;
-        while(i < signSize+1)
-        {
-            bufSign[j++] = sign1[i++];
-        }
-        while(sign1[i++] != 0x02);
-        signSize = sign1[i] + i;
-        if(sign1[++i] == 0x00)
-                i++;
-        while(i < signSize+1)
-        {
-            bufSign[j++] = sign1[i++];
-        }
+        ASNtoRawSignature(sign1,rawSign);
         printf("NEW SIGNATURE IS : ");
         for(i=0;i<64;i++)
         {
-            printf("%02x ",bufSign[i]);
+            printf("%02x ",rawSign[i]);
         }
         puts("");
-        int ress = uECC_verify(dodo[0].pub + 1, sha, shaLen, bufSign, uECC_secp256r1());
+        int ress = uECC_verify(dodo[0].pub + 1, sha, shaLen, rawSign, uECC_secp256r1());
         printf("External verification result is %d\n",ress);
 
         puts("Sign Succesfull");
@@ -300,4 +272,27 @@ if (A71_GetSha256(str,sizeof(str),sha,&shaLen)== SW_OK)
 }
 
 return 0;
+}
+
+void ASNtoRawSignature(const U8 *sign, U8 *rawSign)
+{
+    U8 i = 0;
+    U8 signSize = 0;
+    U8 j = 0;
+    while(sign[i++] != 0x02);
+    signSize = sign[i] + i;
+    if(sign[++i] == 0x00)
+            i++;
+    while(i < signSize+1)
+    {
+        rawSign[j++] = sign[i++];
+    }
+    while(sign[i++] != 0x02);
+    signSize = sign[i] + i;
+    if(sign[++i] == 0x00)
+            i++;
+    while(i < signSize+1)
+    {
+        rawSign[j++] = sign[i++];
+    }
 }
