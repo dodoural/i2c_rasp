@@ -24,31 +24,16 @@
 #include <time.h>
 #include "smComSCI2C.h"
 #include <string.h>
-
+#include "uECC.h"
 #include <stdint.h>
-
 #include <stdio.h>
-
 #include <assert.h>
-
 #include <a71ch_const.h>
-
 #include "ax_api.h"
-
 #include "ax_util.h"
-
 #include "sm_apdu.h"
-
 #include "sm_errors.h"
-
-
 #include "tst_sm_time.h"
-
-#ifdef _WIN32
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#endif
 #include "ax_api.h"
 #include "axHostCrypto.h"
 #include "sm_timer.h"
@@ -100,14 +85,6 @@ void mainA71CHLight(void * connectHandle)
 int mainA71CHLight(const char * connectHandle)
 #endif
 {
-    U8 result = 1;
-   // int connectStatus = 0;
-    SmCommState_t commState;
-    time_t now;
-    axTimeMeasurement_t execTime;
-#ifdef TDA8029_UART
-    Scp03SessionState_t sessionState;
-#endif
 
 
 
@@ -136,91 +113,154 @@ else{
         #endif
     }
 */
-eccKeyComponents_t dodo;
-dodo.pubLen = sizeof(dodo.pub);
+eccKeyComponents_t dodo[5];
+dodo[0].pubLen = sizeof(dodo->pub);
+dodo[0].curve = ECCCurve_NIST_P256;
+dodo[1].pubLen = sizeof(dodo->pub);
+
 sw =  -1;
 int i = 0;
 U8 uid[36]= {0};
 U16 size = 36;
-  if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
-    {        printf("Get Good 0.\n\r");
+  if ( A71_GetPublicKeyEccKeyPair(0, dodo[0].pub, &(dodo[0].pubLen)) == SW_OK)
+    {       printf("PUB KEY IS : ");
             for(i = 0; i < 65 ; i++)
             {
-                printf(" %d",dodo.pub[i]);
+                printf("%02x",dodo[0].pub[i]);
             }
             printf("\n\r");
 
     }
-    if (A71_GenerateEccKeyPair(0) == SW_OK)
-    {
-        if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
-        {
+    // if (A71_GenerateEccKeyPair(0) == SW_OK)
+    // {
+    //     if ( A71_GetPublicKeyEccKeyPair(0, dodo[0].pub, &(dodo[0].pubLen)) == SW_OK)
+    //     {
 
-            printf("Get Good 1.\n\r");
-            for(i = 0; i < 65 ; i++)
-            {
-                printf(" %d",dodo.pub[i]);
-            }
-            printf("\n\r");
-            if(A71_SetEccPublicKey(0,dodo.pub, dodo.pubLen) == SW_OK)
-                printf("Key saved at index %d\n\r",0);
-        }
-    }
-    sw = A71_GetUniqueID(uid,&size);
+    //         printf("Get Good 1.\n\r");
+    //         for(i = 0; i < 65 ; i++)
+    //         {
+    //             printf(" %d",dodo[0].pub[i]);
+    //         }
+    //         printf("\n\r");
+    //         if(A71_SetEccPublicKey(0,dodo[0].pub, dodo[0].pubLen) == SW_OK)
+    //             printf("Key saved at index %d\n\r",0);
+    //     }
+    // }
+    //  if (A71_GenerateEccKeyPair(1) == SW_OK)
+    // {
+    //     if ( A71_GetPublicKeyEccKeyPair(1, dodo[1].pub, &(dodo[1].pubLen)) == SW_OK)
+    //     {
 
-    if(sw == SW_OK)
-    printf("UNIQUE ID = ");
-    for(i = 0; i < 18 ; i++)
-    {
-        printf(" %d",uid[i]);
-    }
-    printf("\n\r");
-    U8 rnd[64];
-    sw = A71_GetRandom(rnd,64);
-    if(sw == SW_OK)
-    printf("RANDOM NUMBER = ");
-    for(i = 0; i < 65 ; i++)
-    {
-        printf(" %d",rnd[i]);
-    }
-    printf("\n\r");
+    //         printf("Get Good 2.\n\r");
+    //         for(i = 0; i < 65 ; i++)
+    //         {
+    //             printf(" %d",dodo[1].pub[i]);
+    //         }
+    //         printf("\n\r");
+    //         if(A71_SetEccPublicKey(1,dodo[1].pub, dodo[1].pubLen) == SW_OK)
+    //             printf("Key saved at index %d\n\r",0);
+    //     }
+    // }
+    // sw = A71_GetUniqueID(uid,&size);
 
-  if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
-    {
-            printf("Get Good 2\n\r");
-            for(i = 0; i < 65 ; i++)
-            {
-                printf(" %d",dodo.pub[i]);
-            }
-            printf("\n\r");
+    // if(sw == SW_OK)
+    // printf("UNIQUE ID = ");
+    // for(i = 0; i < 18 ; i++)
+    // {
+    //     printf(" %d",uid[i]);
+    // }
+    // printf("\n\r");
+    // U8 rnd[64];
+    // sw = A71_GetRandom(rnd,64);
+    // if(sw == SW_OK)
+    // printf("RANDOM NUMBER = ");
+    // for(i = 0; i < 65 ; i++)
+    // {
+    //     printf(" %d",rnd[i]);
+    // }
+    // printf("\n\r");
 
-    }
-    if (A71_GenerateEccKeyPair(0) == SW_OK)
-            printf("Generate Good.\n\r");
-    if ( A71_GetPublicKeyEccKeyPair(0, dodo.pub, &dodo.pubLen) == SW_OK)
-            printf("Get Good 4\n\r");
-    if(A71_SetEccPublicKey(0,dodo.pub, dodo.pubLen) == SW_OK)
-            printf("Key saved at index %d\n\r",0);
-for(i = 0; i < 65 ; i++)
-{
-printf(" %d",dodo.pub[i]);
-}
-printf("\n\r");
+
 U8 str[] = {"HELLO WORLD !"};
 U8 sha[32] = {0};
 U16 shaLen =32;
-U8 sign[256] = {0};
-U16 signLen = 256;
+U8 sign1[256] = {0};
+U16 signLen1 = 256;
+U8 sign2[256] = {0};
+U16 signLen2 = 256;
 if (A71_GetSha256(str,sizeof(str),sha,&shaLen)== SW_OK)
 {
 
-    if(A71_EccSign(0,sha,32,sign,&signLen) == SW_OK)
+    if(A71_EccSign(0,sha,shaLen,sign1,&signLen1) == SW_OK)
     {
+        printf("Signature size is : %d\n\r",signLen1);
+        printf("SIGNATURE IS : ");
+        for(i=0;i<signLen1;i++)
+        {
+            printf("%02x",sign1[i]);
+        }
+        puts("");
+
+        int ress = uECC_verify(dodo[0].pub, sha, shaLen, sign1+2, uECC_secp256r1());
+        printf("RES IS %d\n",ress);
+
         puts("Sign Succesfull");
         U8 res = 0;
-        if(A71_EccVerify(0,sha,shaLen,sign,signLen,&res)==SW_OK)
+        if(A71_EccVerify(0,sha,shaLen,sign1,signLen1,&res)==SW_OK)
         printf("RESULT OF VERIFY IS %d\n\r",res);
+        if(A71_EccVerifyWithKey(dodo[0].pub,dodo[0].pubLen,sha,shaLen,sign1,signLen1,&res)==SW_OK)
+        printf("RESULT OF VERIFY IS %d\n\r",res);
+
+        #include <fcntl.h>
+        FILE *fp;
+        fp=fopen("sign.txt","wb");
+        if(fp != NULL )
+        {
+        fprintf(fp,"%s", sign1);
+        fclose(fp);
+        }
+
     }
+     if(A71_EccNormalizedAsnSign(0,sha,shaLen,sign1,&signLen1) == SW_OK)
+    {
+        printf("Signature size is : %d\n\r",signLen1);
+        printf("SIGNATURE IS : ");
+        for(i=0;i<signLen1;i++)
+        {
+            printf("%02x",sign1[i]);
+        }
+        puts("");
+
+        int ress = uECC_verify(dodo[0].pub, sha, shaLen, sign1, uECC_secp256r1());
+        printf("RES IS %d\n",ress);
+
+        puts("Sign Succesfull");
+        U8 res = 0;
+        if(A71_EccVerify(0,sha,shaLen,sign1,signLen1,&res)==SW_OK)
+        printf("RESULT OF VERIFY IS %d\n\r",res);
+        if(A71_EccVerifyWithKey(dodo[0].pub,dodo[0].pubLen,sha,shaLen,sign1,signLen1,&res)==SW_OK)
+        printf("RESULT OF VERIFY IS %d\n\r",res);
+
+        #include <fcntl.h>
+        FILE *fp;
+        fp=fopen("sign.txt","wb");
+        if(fp != NULL )
+        {
+        fprintf(fp,"%s", sign1);
+        fclose(fp);
+        }
+
+    }
+    //  if(A71_EccSign(1,sha,32,sign2,&signLen2) == SW_OK)
+    // {
+    //     puts("Sign Succesfull");
+    //     U8 res = 0;
+    //     if(A71_EccVerify(1,sha,shaLen,sign2,signLen2,&res)==SW_OK)
+    //     printf("RESULT OF VERIFY IS %d\n\r",res);
+    //     if(A71_EccVerifyWithKey(dodo[1].pub,dodo[1].pubLen,sha,shaLen,sign2,signLen2,&res)==SW_OK)
+    //     printf("RESULT OF VERIFY IS %d\n\r",res);
+    // }
 }
 
+return 0;
 }

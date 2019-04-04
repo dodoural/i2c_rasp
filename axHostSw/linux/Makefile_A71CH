@@ -79,8 +79,8 @@ A71CH_LIGHT_EX_SOURCES = \
 	../hostLib/tstUtil/tst_a71ch_util.c \
 	../hostLib/tstUtil/tst_sm_util.c \
 	../hostLib/tstUtil/tst_sm_time.c \
-	../hostLib/tstUtil/app_boot.c
-
+	../hostLib/tstUtil/app_boot.c \
+	../hostLib/platform/rsp/uECC.c
 A71CH_EX_HLSE_SOURCES = \
 	../hostLib/a71ch/ex_hlse/ex_hlse_aes.c \
 	../hostLib/a71ch/ex_hlse/ex_hlse_boot.c \
@@ -210,7 +210,8 @@ ifeq ($(app),A71CH_LIGHT)
 		-I../hostLib/a71ch/inc \
 		-I../hostLib/a71ch/ex \
 		-I../hostLib/tstUtil \
-		-I../hostLib/api/inc
+		-I../hostLib/api/inc \
+		-I../hostlib/platform/rsp
 
 	SOURCES += $(A71CH_SOURCES) ../hostLib/libCommon/hostCrypto/axHostCryptoStubs.c ../hostLib/a71ch/light/mainA71CHLight.c $(A71CH_LIGHT_EX_SOURCES)
 endif
