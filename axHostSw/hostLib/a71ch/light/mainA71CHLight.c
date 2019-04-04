@@ -181,7 +181,8 @@ U16 size = 36;
     // printf("\n\r");
 
 
-U8 str[] = {"HELLO WORLD !"};
+//U8 str[] = {"HELLO WORLD !"};
+U8 str[2] = {1,2};
 U8 sha[32] = {0};
 U16 shaLen =32;
 U8 sign1[256] = {0};
@@ -190,67 +191,103 @@ U8 sign2[256] = {0};
 U16 signLen2 = 256;
 if (A71_GetSha256(str,sizeof(str),sha,&shaLen)== SW_OK)
 {
-
-    if(A71_EccSign(0,sha,shaLen,sign1,&signLen1) == SW_OK)
+    printf("HASH IS : ");
+        for(i=0;i<shaLen;i++)
+        {
+            printf("%02x ",sha[i]);
+        }
+        puts("");
+    if(A71_EccNormalizedAsnSign(0,sha,shaLen,sign1,&signLen1) == SW_OK)
     {
         printf("Signature size is : %d\n\r",signLen1);
         printf("SIGNATURE IS : ");
         for(i=0;i<signLen1;i++)
         {
-            printf("%02x",sign1[i]);
+            printf("%02x ",sign1[i]);
         }
         puts("");
-
-        int ress = uECC_verify(dodo[0].pub, sha, shaLen, sign1+2, uECC_secp256r1());
-        printf("RES IS %d\n",ress);
+        i = 0;
+        U8 bufSign[64];
+        U8 signSize = 0;
+        U8 j = 0;
+        while(sign1[i++] != 0x02);
+        signSize = sign1[i] + i;
+        if(sign1[++i] == 0x00)
+                i++;
+        while(i < signSize+1)
+        {
+            bufSign[j++] = sign1[i++];
+        }
+        while(sign1[i++] != 0x02);
+        signSize = sign1[i] + i;
+        if(sign1[++i] == 0x00)
+                i++;
+        while(i < signSize+1)
+        {
+            bufSign[j++] = sign1[i++];
+        }
+        printf("NEW SIGNATURE IS : ");
+        for(i=0;i<64;i++)
+        {
+            printf("%02x ",bufSign[i]);
+        }
+        puts("");
+        int ress = uECC_verify(dodo[0].pub + 1, sha, shaLen, bufSign, uECC_secp256r1());
+        printf("External verification result is %d\n",ress);
 
         puts("Sign Succesfull");
         U8 res = 0;
         if(A71_EccVerify(0,sha,shaLen,sign1,signLen1,&res)==SW_OK)
         printf("RESULT OF VERIFY IS %d\n\r",res);
+        res = 0;
         if(A71_EccVerifyWithKey(dodo[0].pub,dodo[0].pubLen,sha,shaLen,sign1,signLen1,&res)==SW_OK)
         printf("RESULT OF VERIFY IS %d\n\r",res);
 
-        #include <fcntl.h>
-        FILE *fp;
-        fp=fopen("sign.txt","wb");
-        if(fp != NULL )
-        {
-        fprintf(fp,"%s", sign1);
-        fclose(fp);
-        }
+
 
     }
-     if(A71_EccNormalizedAsnSign(0,sha,shaLen,sign1,&signLen1) == SW_OK)
-    {
-        printf("Signature size is : %d\n\r",signLen1);
-        printf("SIGNATURE IS : ");
-        for(i=0;i<signLen1;i++)
-        {
-            printf("%02x",sign1[i]);
-        }
-        puts("");
+    //  if(A71_EccNormalizedAsnSign(0,sha,shaLen,sign1,&signLen1) == SW_OK)
+    // {
+    //     printf("Signature size is : %d\n\r",signLen1);
+    //     printf("SIGNATURE IS : ");
+    //     for(i=0;i<signLen1;i++)
+    //     {
+    //         printf("%02x ",sign1[i]);
+    //     }
+    //     puts("");
+    //     uint8_t pubKey[64];
+    //     uint8_t privKey[32];
+    //     if (uECC_make_key(pubKey,privKey,uECC_secp256r1()) == 1)
+    //     {
+    //         uECC_sign(privKey,sha,shaLen,sign2,uECC_secp256r1());
+    //         //int ress = uECC_verify(dodo[0].pub, sha, shaLen, sign1, uECC_secp256r1());
+    //         int ress = uECC_verify(pubKey, sha, shaLen, sign2, uECC_secp256r1());
+    //         printf("RES IS %d\n",ress);
+    //         printf("SIGNATURE uECC IS : ");
+    //         for(i=0;i<signLen1;i++)
+    //         {
+    //             printf("%02x ",sign1[i]);
+    //         }
+    //     }
 
-        int ress = uECC_verify(dodo[0].pub, sha, shaLen, sign1, uECC_secp256r1());
-        printf("RES IS %d\n",ress);
 
-        puts("Sign Succesfull");
-        U8 res = 0;
-        if(A71_EccVerify(0,sha,shaLen,sign1,signLen1,&res)==SW_OK)
-        printf("RESULT OF VERIFY IS %d\n\r",res);
-        if(A71_EccVerifyWithKey(dodo[0].pub,dodo[0].pubLen,sha,shaLen,sign1,signLen1,&res)==SW_OK)
-        printf("RESULT OF VERIFY IS %d\n\r",res);
+    //     puts("Sign Succesfull");
+    //     U8 res = 0;
+    //     if(A71_EccVerify(0,sha,shaLen,sign1,signLen1,&res)==SW_OK)
+    //     printf("RESULT OF VERIFY IS %d\n\r",res);
+    //     if(A71_EccVerifyWithKey(dodo[0].pub,dodo[0].pubLen,sha,shaLen,sign1,signLen1,&res)==SW_OK)
+    //     printf("RESULT OF VERIFY IS %d\n\r",res);
 
-        #include <fcntl.h>
-        FILE *fp;
-        fp=fopen("sign.txt","wb");
-        if(fp != NULL )
-        {
-        fprintf(fp,"%s", sign1);
-        fclose(fp);
-        }
+    //     #include <fcntl.h>
+    //     FILE *fp;
+    //     fp=fopen("sign.txt","wb");
+    //     if(fp != NULL )
+    //     {
+    //     fprintf(fp,"%s", sign1);
+    //     fclose(fp);
+    //     }
 
-    }
+    // }
     //  if(A71_EccSign(1,sha,32,sign2,&signLen2) == SW_OK)
     // {
     //     puts("Sign Succesfull");
